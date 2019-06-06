@@ -8,7 +8,7 @@ import lmdb
 import pickle
 import msgpack
 import tqdm
-import pyarray as pa
+import pyarrow as pa
 import torch
 import torch.utils.data as data
 from torch.utils.data import DataLoader
@@ -22,13 +22,13 @@ class ImageFolderLMDB(data.Dataset):
         db_path = osp.join(dpath,'%s.lmdb' % split)
         if not os.path.exists(db_path):
             print('No lmdb avialable, creating now.')
-            folder2lmdb(db_path, name=split)
+            folder2lmdb(dpath, name=split)
         self.db_path = db_path
         self.env = lmdb.open(db_path, subdir=osp.isdir(db_path),
-                             readonly=True, lock=Fasle,
+                             readonly=True, lock=False,
                              readahead=False, meminit=False)
         with self.env.begin(write=False) as txn:
-            self.length = txn.get(b'__len__'):
+            self.length = txn.get(b'__len__')
             self.keys = msgpack.loads(txn.get(b'__keys__'))
         
         self.transform = transform
@@ -99,7 +99,7 @@ def folder2lmdb(dpath, name='train', write_frequency=5000):
     
     txn = db.begin(write=True)
     for idx, data in enumerate(data_loader):
-        image, label = data
+        image, label = data[0]
         txn.put(u'{}'.format(idx).encoder('ascii'), dumps_pyarrow((image, label)))
         if idx % write_frequency == 0:
             print('[%d/%d]'%(idx, len(data_loader)))
