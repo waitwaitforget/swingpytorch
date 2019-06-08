@@ -7,7 +7,7 @@ import string
 import lmdb
 import pickle
 import msgpack
-import tqdm
+from tqdm import tqdm
 import pyarrow as pa
 import torch
 import torch.utils.data as data
@@ -98,7 +98,7 @@ def folder2lmdb(dpath, name='train', write_frequency=5000):
                     meminit=False, map_async=True)
     
     txn = db.begin(write=True)
-    for idx, data in enumerate(data_loader):
+    for idx, data in enumerate(tqdm(data_loader)):
         image, label = data[0]
         txn.put(u'{}'.format(idx).encoder('ascii'), dumps_pyarrow((image, label)))
         if idx % write_frequency == 0:

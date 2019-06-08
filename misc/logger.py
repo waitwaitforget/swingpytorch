@@ -1,7 +1,7 @@
 import logging
 import time
 from datetime import timedelta
-
+import os
 
 class LogFormatter():
 
@@ -59,7 +59,8 @@ def initialize_exp(config):
     # create a logger
     logger = create_logger(os.path.join(config.checkpoint, 'train.log'))
     logger.info('============ Initialized logger ============')
+    
     logger.info('\n'.join('%s: %s' % (k, str(v)) for k, v
-                          in sorted(config._state_dict()).items())))
+                          in sorted(config._state_dict().items())))
     return logger
 

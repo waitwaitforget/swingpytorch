@@ -59,7 +59,7 @@ class Engine(object):
                                         gamma=config.gamma)
 
 
-        logger.info('%i parameters in the model.' % sum([p.nelement() for p in self.model.parameters()]))
+        logger.info('%.2f parameters in the model.' % sum([p.nelement() for p in self.model.parameters()])/1000000)
 
         # training statistics
         self.stats = edict()
@@ -68,6 +68,7 @@ class Engine(object):
         self.stats.batch_loss = []
         self.measures = edict()
         self.measures.train = edict()
+        self.measures.val = edict()
         
         if metrics is None:
             metrics = {'top1_acc': accuracy}
@@ -185,7 +186,7 @@ class Engine(object):
 
         end = time.time()
         bar = Bar('Processing', max=len(valdataloader))
-        with torch.no_grad():
+        with t.no_grad():
             for batch_idx, (data, targets) in enumerate(valdataloader):
                 data_time.update(time.time() - end)
                 if self.config.cuda:
